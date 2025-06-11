@@ -3,6 +3,7 @@ package com.xtracr.realcamera;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.xtracr.realcamera.compat.DisableHelper;
+import com.xtracr.realcamera.compat.CompatibilityHelper;
 import com.xtracr.realcamera.config.BindingTarget;
 import com.xtracr.realcamera.config.ConfigFile;
 import com.xtracr.realcamera.util.LocUtil;
@@ -84,7 +85,11 @@ public class RealCameraCore {
         }
         // WorldRenderer.renderEntity
         offset = new Vec3(Mth.lerp(tickDelta, entity.xOld, entity.getX()), Mth.lerp(tickDelta, entity.yOld, entity.getY()), Mth.lerp(tickDelta, entity.zOld, entity.getZ()));
-        dispatcher.render(entity, 0, 0, 0, Mth.lerp(tickDelta, entity.yRotO, entity.getYRot()), tickDelta, new PoseStack(), recorder, dispatcher.getPackedLightCoords(entity, tickDelta));
+        PoseStack poseStack = new PoseStack();
+        if (!CompatibilityHelper.GeckoLib_render(dispatcher.getRenderer(entity), entity, tickDelta, poseStack, recorder, dispatcher.getPackedLightCoords(entity, tickDelta))) {
+            dispatcher.render(entity, 0, 0, 0, Mth.lerp(tickDelta, entity.yRotO, entity.getYRot()), tickDelta, poseStack, recorder, dispatcher.getPackedLightCoords(entity, tickDelta));
+        }
+        
         recorder.buildRecords();
     }
 
